@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, Dimensions, Image } from 'react-native'
+import { View, Text, StyleSheet, FlatList, Dimensions, Image, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Header from '../../common/Header'
 import { useNavigation } from '@react-navigation/native'
@@ -20,7 +20,7 @@ const Home = () => {
 
       <FlatList data={products} renderItem={({item, index}) => {
         return (
-          <View style={styles.productItem}>
+          <TouchableOpacity activeOpacity={1} style={styles.productItem} onPress={() => {navigation.navigate('ProductDetail', {data: item})}}>
               <Image source={{uri: item.image}} style={styles.itemImage}/>
 
               <View>
@@ -38,7 +38,7 @@ const Home = () => {
               
               
 
-          </View>
+          </TouchableOpacity>
         )
       }}/>
     </View>
