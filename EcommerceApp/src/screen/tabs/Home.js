@@ -15,7 +15,10 @@ const Home = () => {
   const getProducts = () => {
     fetch('https://fakestoreapi.com/products')
             .then(res=>res.json())
-            .then(json=> {setProducts(json)
+            .then(json=> {setProducts(json);
+              json.map(item => {
+                item.qty = 1;
+              });
             dispatch(addProducts(json))
             })
   } 
