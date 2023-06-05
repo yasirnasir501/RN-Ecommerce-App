@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import Header from '../common/Header';
 import { useNavigation } from '@react-navigation/native';
 import { addItemToCart, reduceItemToCart, removeItemToCart } from '../redux/slices/CartSlice';
+import CheckoutLayout from '../common/CheckoutLayout';
 
 const Cart = () => {
   const items = useSelector(state => state.cart);
@@ -13,6 +14,14 @@ const Cart = () => {
   useEffect(() => {
     setCartItems(items.data)
   }, [items]);
+
+  const getTotal = () => {
+    let total = 0;
+    cartItems.map(item => {
+      total = total + item.qty * item.price
+    })
+    return total.toFixed(0);
+  }
   return (
     <View style={styles.container}>
       <View style={{height: 55, width: '100%', backgroundColor:'#0786DAFD'}}>
@@ -62,6 +71,17 @@ const Cart = () => {
           </TouchableOpacity>
         )
       }}/>
+
+      {cartItems.length < 1 && (
+        <View style={styles.noItems}>
+          <Text style={{color: '#000'}}>No Items in cart</Text>
+        </View>
+      )}
+
+      {cartItems.length>0 && (
+      <CheckoutLayout  items={cartItems.length} total={getTotal()}/>
+      )}
+      
     </View>
   )
 }
@@ -71,7 +91,6 @@ export default Cart;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
   },
   productItem:{
     width: Dimensions.get('window').width,
@@ -123,6 +142,12 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 18,
     fontWeight: '600'
+  },
+  noItems:{
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 
 })

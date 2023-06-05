@@ -1,12 +1,61 @@
-import { View, Text } from 'react-native'
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
+import Header from '../../common/Header';
 
 const User = () => {
   return (
-    <View>
-      <Text  style={{color: '#000'}}>User</Text>
+    <View style={styles.container}>
+      <Header title={'Profile'}/>
+      <Image source={require('../../images/userdefault.png')} style={styles.user}/>
+      <Text style={styles.name}>{'Yasir Nasir'}</Text>
+      <Text style={[styles.name, {fontSize: 16, marginTop: 0}]}>{'yasirnasir501@gmail.com'}</Text>
+
+      <TouchableOpacity style={[styles.tab, {marginTop: 40}]}>
+        <Text style={{color: '#000'}}>Edit Profile</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.tab, {marginTop: 10}]}>
+        <Text style={{color: '#000'}}>Orders</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.tab, {marginTop: 10}]}>
+        <Text style={{color: '#000'}}>Address</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.tab, {marginTop: 10}]}>
+        <Text style={{color: '#000'}}>Payment Method</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.tab, {marginTop: 10}]}>
+        <Text style={{color: '#000'}}>Log Out</Text>
+      </TouchableOpacity>
     </View>
   )
 }
 
-export default User
+export default User;
+
+const styles = StyleSheet.create({
+  container:{
+    flex: 1,
+    backgroundColor: '#fff'
+  },
+  user:{
+    height: 100,
+    width: 100,
+    alignSelf: 'center',
+    marginTop: 50
+  },
+  name:{
+   alignSelf: 'center',
+   marginTop:10,
+   fontSize: 20,
+   fontWeight: '600',
+   color: '#000' 
+  },
+  tab:{
+    width: '90%',
+    height: 50,
+    borderBottomWidth: 0.3,
+    alignSelf:"center",
+    borderBottomColor: '#DBDBDB',
+    paddingLeft: 20,
+    justifyContent: 'center'
+  }
+})
