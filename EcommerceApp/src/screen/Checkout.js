@@ -1,10 +1,11 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Dimensions } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Header from '../common/Header'
-import { useNavigation } from '@react-navigation/native'
+import { useIsFocused, useNavigation } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
 import { addItemToCart, reduceItemToCart, removeItemToCart } from '../redux/slices/CartSlice'
 import CustomButton from '../common/CustomButton'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const Checkout = () => {
     const navigation = useNavigation();
@@ -12,6 +13,7 @@ const Checkout = () => {
     const [cartItems, setCartItems] = useState([]);
     const [selectedMethod, setSelectedMethod] = useState(0)
     const [selectAddress, setSelectAddress] = useState('Please Select Address') 
+    const isFocused = useIsFocused();
 
     const dispatch = useDispatch();
     useEffect(() => {
@@ -25,6 +27,14 @@ const Checkout = () => {
         })
         return total.toFixed(0);
     }
+
+    useEffect(() => {
+        getSelectedAddress();
+    }, [isFocused]);
+    const getSelectedAddress = async () => {
+        setSelectAddress(await AsyncStorage.getItem('MY_ADDRESS'))
+    }
+
     return (
         <View style={styles.container}>
             <Header leftIcon={require('../images/back.png')} title={'Checkout'} onClickLeftIcon={() => {
@@ -113,7 +123,13 @@ const Checkout = () => {
                 <Text style={styles.paymentMethodTxt}>Cash On Delivery</Text>
             </TouchableOpacity>
 
+            <View style={styles.addressView}>
             <Text style={styles.title}>Address</Text>
+            <Text style={[styles.title, {textDecorationLine: 'underline', color: '#0269A0FB'}]} onPress={() => {
+                navigation.navigate('Addresses')
+            }}>Edit Address</Text>
+            </View>
+            
             <Text style={[styles.title, {marginTop: 10, fontSize: 16, color: '#636363'}]}>{selectAddress}</Text>
 
             <CustomButton bg={'green'} title={'Pay & Order'} color={'#fff'}/>
@@ -213,5 +229,13 @@ const styles = StyleSheet.create({
         marginLeft: 15,
         fontSize: 16,
         color: '#000'
+    },
+    addressView:{
+        flexDirection: 'row',
+        width: '100%',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        // paddingLeft: 20,
+        paddingRight: 20,
     }
 })
