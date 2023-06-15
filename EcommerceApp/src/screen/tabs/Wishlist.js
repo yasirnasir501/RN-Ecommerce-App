@@ -10,7 +10,7 @@ const Wishlist = () => {
   const navigation = useNavigation();
   return (
     <View style={styles.container}>
-      <Header title={'Search Items'}/>
+      <Header title={'Wishlist'}/>
       <FlatList data={wishlistItems} renderItem={({item, index}) => {
         return(
           <TouchableOpacity activeOpacity={1} style={styles.productItem} onPress={() => {navigation.navigate('ProductDetail', {data: item})}}>

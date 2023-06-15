@@ -19,7 +19,7 @@ const AddAddress = () => {
 
   return (
     <View style={styles.container}>
-      <Header leftIcon={require('../images/back.png')} title={route.params.type == 'edit' ? 'Edit Address' : 'Add New Address'} />
+      <Header leftIcon={require('../images/back.png')} title={route.params.type == 'edit' ? 'Edit Address' : 'Add New Address'} onClickLeftIcon={() => {navigation.goBack();}}/>
 
       <TextInput placeholder='Enter State' placeholderTextColor={'#000'} style={[styles.input, { marginTop: 50, color: '#000' }]} value={state} onChangeText={txt => setState(txt)} />
       <TextInput placeholder='Enter City' placeholderTextColor={'#000'} style={[styles.input, { marginTop: 15, color: '#000' }]} value={city} onChangeText={txt => setCity(txt)} />

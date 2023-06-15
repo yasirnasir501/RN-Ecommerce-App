@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Dimensions } from 'react-native'
+import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Dimensions, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Header from '../common/Header'
 import { useIsFocused, useNavigation } from '@react-navigation/native'
@@ -71,9 +71,9 @@ const Checkout = () => {
         const hours = new Date().getHours();
         const minutes = new Date().getMinutes();
         let ampm = ''
-        if(hours > 12){
+        if (hours > 12) {
             ampm = 'pm'
-        }else{
+        } else {
             ampm = 'am'
         }
         const data = {
@@ -82,7 +82,7 @@ const Checkout = () => {
             address: selectAddress,
             paymentId: paymentId,
             paymentStatus: selectedMethod == 3 ? 'Pending' : 'Success',
-            createdAt: day +'/'+month+'/'+year +' '+ hours + ':' + minutes + ' ' + ampm, 
+            createdAt: day + '/' + month + '/' + year + ' ' + hours + ':' + minutes + ' ' + ampm,
         }
         dispatch(orderItem(data))
         dispatch(emptyCart([]))
@@ -90,107 +90,109 @@ const Checkout = () => {
     };
 
     return (
-        <View style={styles.container}>
-            <Header leftIcon={require('../images/back.png')} title={'Checkout'} onClickLeftIcon={() => {
-                navigation.goBack();
-            }} />
-            <Text style={styles.title}>Added Items</Text>
-            <View>
-                <FlatList data={cartItems} renderItem={({ item, index }) => {
-                    return (
-                        <TouchableOpacity activeOpacity={1} style={styles.productItem} onPress={() => { navigation.navigate('ProductDetail', { data: item }) }}>
-                            <Image source={{ uri: item.image }} style={styles.itemImage} />
+        <ScrollView>
+            <View style={styles.container}>
+                <Header leftIcon={require('../images/back.png')} title={'Checkout'} onClickLeftIcon={() => {
+                    navigation.goBack();
+                }} />
+                <Text style={styles.title}>Added Items</Text>
+                <View>
+                    <FlatList data={cartItems} renderItem={({ item, index }) => {
+                        return (
+                            <TouchableOpacity activeOpacity={1} style={styles.productItem} onPress={() => { navigation.navigate('ProductDetail', { data: item }) }}>
+                                <Image source={{ uri: item.image }} style={styles.itemImage} />
 
-                            <View>
+                                <View>
 
-                                <Text style={styles.name}>
-                                    {item.title.length > 25 ? item.title.substring(0, 25) + '...' : item.title}
-                                </Text>
+                                    <Text style={styles.name}>
+                                        {item.title.length > 25 ? item.title.substring(0, 25) + '...' : item.title}
+                                    </Text>
 
-                                <Text style={styles.desc}>
-                                    {item.description.length > 30 ? item.description.substring(0, 30) + '...' : item.description}
-                                </Text>
+                                    <Text style={styles.desc}>
+                                        {item.description.length > 30 ? item.description.substring(0, 30) + '...' : item.description}
+                                    </Text>
 
-                                <View style={styles.qtyView}>
-                                    <Text style={styles.price}> {'RS' + item.price}</Text>
+                                    <View style={styles.qtyView}>
+                                        <Text style={styles.price}> {'RS' + item.price}</Text>
 
-                                    <TouchableOpacity style={styles.btn} onPress={() => {
-                                        if (item.qty > 1) {
-                                            dispatch(reduceItemToCart(item))
-                                        } else {
-                                            dispatch(removeItemToCart(index));
-                                        }
-                                    }}>
-                                        <Text style={{ color: '#000', fontSize: 18, fontWeight: '600' }}>-</Text>
-                                    </TouchableOpacity>
+                                        <TouchableOpacity style={styles.btn} onPress={() => {
+                                            if (item.qty > 1) {
+                                                dispatch(reduceItemToCart(item))
+                                            } else {
+                                                dispatch(removeItemToCart(index));
+                                            }
+                                        }}>
+                                            <Text style={{ color: '#000', fontSize: 18, fontWeight: '600' }}>-</Text>
+                                        </TouchableOpacity>
 
-                                    <Text style={styles.qty}>{item.qty}</Text>
+                                        <Text style={styles.qty}>{item.qty}</Text>
 
-                                    <TouchableOpacity style={styles.btn} onPress={() => {
-                                        dispatch(addItemToCart(item));
-                                    }}>
-                                        <Text style={{ color: '#000', fontSize: 18, fontWeight: '600' }}>+</Text>
-                                    </TouchableOpacity>
+                                        <TouchableOpacity style={styles.btn} onPress={() => {
+                                            dispatch(addItemToCart(item));
+                                        }}>
+                                            <Text style={{ color: '#000', fontSize: 18, fontWeight: '600' }}>+</Text>
+                                        </TouchableOpacity>
+
+                                    </View>
 
                                 </View>
 
-                            </View>
+                            </TouchableOpacity>
+                        )
+                    }} />
+                </View>
 
-                        </TouchableOpacity>
-                    )
+                <View style={styles.totalView}>
+                    <Text style={styles.title}>Total</Text>
+                    <Text style={{
+                        fontSize: 18,
+                        marginRight: 20,
+                        marginTop: 30,
+                        color: '#000'
+                    }}>{'RS' + getTotal()}</Text>
+                </View>
+
+                <Text style={styles.title}>Select Payment Mode</Text>
+                <TouchableOpacity style={styles.paymentMethods} onPress={() => {
+                    setSelectedMethod(0);
+                }}>
+                    <Image source={selectedMethod == 0 ? require('../images/radioselect.png') : require('../images/radiounselect.png')} style={[styles.img, { tintColor: selectedMethod == 0 ? 'orange' : '#000' },]} />
+                    <Text style={styles.paymentMethodTxt}>Credit Card</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.paymentMethods} onPress={() => {
+                    setSelectedMethod(1);
+                }}>
+                    <Image source={selectedMethod == 1 ? require('../images/radioselect.png') : require('../images/radiounselect.png')} style={[styles.img, { tintColor: selectedMethod == 1 ? 'orange' : '#000' },]} />
+                    <Text style={styles.paymentMethodTxt}>Debit Card</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.paymentMethods} onPress={() => {
+                    setSelectedMethod(2);
+                }}>
+                    <Image source={selectedMethod == 2 ? require('../images/radioselect.png') : require('../images/radiounselect.png')} style={[styles.img, { tintColor: selectedMethod == 2 ? 'orange' : '#000' },]} />
+                    <Text style={styles.paymentMethodTxt}>EasyPaisa</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.paymentMethods} onPress={() => {
+                    setSelectedMethod(3);
+                }}>
+                    <Image source={selectedMethod == 3 ? require('../images/radioselect.png') : require('../images/radiounselect.png')} style={[styles.img, { tintColor: selectedMethod == 3 ? 'orange' : '#000' },]} />
+                    <Text style={styles.paymentMethodTxt}>Cash On Delivery</Text>
+                </TouchableOpacity>
+
+                <View style={styles.addressView}>
+                    <Text style={styles.title}>Address</Text>
+                    <Text style={[styles.title, { textDecorationLine: 'underline', color: '#0269A0FB' }]} onPress={() => {
+                        navigation.navigate('Addresses')
+                    }}>Edit Address</Text>
+                </View>
+
+                <Text style={[styles.title, { marginTop: 10, fontSize: 16, color: '#636363' }]}>{selectAddress}</Text>
+
+                <CustomButton bg={'green'} title={'Pay & Order'} color={'#fff'} onClick={() => {
+                    payNow();
+
                 }} />
             </View>
-
-            <View style={styles.totalView}>
-                <Text style={styles.title}>Total</Text>
-                <Text style={{
-                    fontSize: 18,
-                    marginRight: 20,
-                    marginTop: 30,
-                    color: '#000'
-                }}>{'RS' + getTotal()}</Text>
-            </View>
-
-            <Text style={styles.title}>Select Payment Mode</Text>
-            <TouchableOpacity style={styles.paymentMethods} onPress={() => {
-                setSelectedMethod(0);
-            }}>
-                <Image source={selectedMethod == 0 ? require('../images/radioselect.png') : require('../images/radiounselect.png')} style={[styles.img, { tintColor: selectedMethod == 0 ? 'orange' : '#000' },]} />
-                <Text style={styles.paymentMethodTxt}>Credit Card</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.paymentMethods} onPress={() => {
-                setSelectedMethod(1);
-            }}>
-                <Image source={selectedMethod == 1 ? require('../images/radioselect.png') : require('../images/radiounselect.png')} style={[styles.img, { tintColor: selectedMethod == 1 ? 'orange' : '#000' },]} />
-                <Text style={styles.paymentMethodTxt}>Debit Card</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.paymentMethods} onPress={() => {
-                setSelectedMethod(2);
-            }}>
-                <Image source={selectedMethod == 2 ? require('../images/radioselect.png') : require('../images/radiounselect.png')} style={[styles.img, { tintColor: selectedMethod == 2 ? 'orange' : '#000' },]} />
-                <Text style={styles.paymentMethodTxt}>EasyPaisa</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.paymentMethods} onPress={() => {
-                setSelectedMethod(3);
-            }}>
-                <Image source={selectedMethod == 3 ? require('../images/radioselect.png') : require('../images/radiounselect.png')} style={[styles.img, { tintColor: selectedMethod == 3 ? 'orange' : '#000' },]} />
-                <Text style={styles.paymentMethodTxt}>Cash On Delivery</Text>
-            </TouchableOpacity>
-
-            <View style={styles.addressView}>
-                <Text style={styles.title}>Address</Text>
-                <Text style={[styles.title, { textDecorationLine: 'underline', color: '#0269A0FB' }]} onPress={() => {
-                    navigation.navigate('Addresses')
-                }}>Edit Address</Text>
-            </View>
-
-            <Text style={[styles.title, { marginTop: 10, fontSize: 16, color: '#636363' }]}>{selectAddress}</Text>
-
-            <CustomButton bg={'green'} title={'Pay & Order'} color={'#fff'} onClick={() => {
-                payNow();
-
-            }} />
-        </View>
+        </ScrollView>
     )
 }
 
