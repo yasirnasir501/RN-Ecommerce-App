@@ -3,16 +3,18 @@ import React, { useEffect, useState } from 'react'
 import Header from '../common/Header'
 import { useIsFocused, useNavigation } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
-import { addItemToCart, reduceItemToCart, removeItemToCart } from '../redux/slices/CartSlice'
+import { addItemToCart, emptyCart, reduceItemToCart, removeItemToCart } from '../redux/slices/CartSlice'
 import CustomButton from '../common/CustomButton'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import RazorpayCheckout from 'react-native-razorpay';
+import { orderItem } from '../redux/slices/OrderSlice'
 
 const Checkout = () => {
     const navigation = useNavigation();
     const items = useSelector(state => state.cart);
     const [cartItems, setCartItems] = useState([]);
     const [selectedMethod, setSelectedMethod] = useState(0)
-    const [selectAddress, setSelectAddress] = useState('Please Select Address') 
+    const [selectAddress, setSelectAddress] = useState('Please Select Address')
     const isFocused = useIsFocused();
 
     const dispatch = useDispatch();
@@ -34,6 +36,58 @@ const Checkout = () => {
     const getSelectedAddress = async () => {
         setSelectAddress(await AsyncStorage.getItem('MY_ADDRESS'))
     }
+
+    const payNow = () => {
+        var options = {
+            description: 'Credits towards consultation',
+            image: 'https://i.imgur.com/3g7nmJC.png',
+            currency: 'INR',
+            key: 'rzp_test_Wy1YsPwzDklWv8', // Your api key
+            amount: getTotal() * 100,
+            name: 'foo',
+            prefill: {
+                email: 'void@razorpay.com',
+                contact: '9191919191',
+                name: 'Razorpay Software',
+            },
+            theme: { color: '#3E8BFF' },
+        };
+        RazorpayCheckout.open(options)
+            .then(data => {
+                // handle success
+                //   alert(`Success: ${data.razorpay_payment_id}`);
+                orderPlace(data.razorpay_payment_id);
+            })
+            .catch(error => {
+                // handle failure
+                alert(`Error: ${error.code} | ${error.description}`);
+            });
+    };
+
+    const orderPlace = (paymentId) => {
+        const day = new Date().getDate();
+        const month = new Date().getMonth() + 1;
+        const year = new Date().getFullYear();
+        const hours = new Date().getHours();
+        const minutes = new Date().getMinutes();
+        let ampm = ''
+        if(hours > 12){
+            ampm = 'pm'
+        }else{
+            ampm = 'am'
+        }
+        const data = {
+            items: cartItems,
+            amount: 'RS' + getTotal(),
+            address: selectAddress,
+            paymentId: paymentId,
+            paymentStatus: selectedMethod == 3 ? 'Pending' : 'Success',
+            createdAt: day +'/'+month+'/'+year +' '+ hours + ':' + minutes + ' ' + ampm, 
+        }
+        dispatch(orderItem(data))
+        dispatch(emptyCart([]))
+        navigation.navigate('OrderSuccess')
+    };
 
     return (
         <View style={styles.container}>
@@ -101,38 +155,41 @@ const Checkout = () => {
             <TouchableOpacity style={styles.paymentMethods} onPress={() => {
                 setSelectedMethod(0);
             }}>
-                <Image source={selectedMethod == 0 ? require('../images/radioselect.png') : require('../images/radiounselect.png')} style={[styles.img, {tintColor: selectedMethod == 0 ? 'orange' : '#000'},]}/>
+                <Image source={selectedMethod == 0 ? require('../images/radioselect.png') : require('../images/radiounselect.png')} style={[styles.img, { tintColor: selectedMethod == 0 ? 'orange' : '#000' },]} />
                 <Text style={styles.paymentMethodTxt}>Credit Card</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.paymentMethods} onPress={() => {
                 setSelectedMethod(1);
             }}>
-                <Image source={selectedMethod == 1 ? require('../images/radioselect.png') : require('../images/radiounselect.png')} style={[styles.img, {tintColor: selectedMethod == 1 ? 'orange' : '#000'},]}/>
+                <Image source={selectedMethod == 1 ? require('../images/radioselect.png') : require('../images/radiounselect.png')} style={[styles.img, { tintColor: selectedMethod == 1 ? 'orange' : '#000' },]} />
                 <Text style={styles.paymentMethodTxt}>Debit Card</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.paymentMethods} onPress={() => {
                 setSelectedMethod(2);
             }}>
-                <Image source={selectedMethod == 2 ? require('../images/radioselect.png') : require('../images/radiounselect.png')} style={[styles.img, {tintColor: selectedMethod == 2 ? 'orange' : '#000'},]}/>
+                <Image source={selectedMethod == 2 ? require('../images/radioselect.png') : require('../images/radiounselect.png')} style={[styles.img, { tintColor: selectedMethod == 2 ? 'orange' : '#000' },]} />
                 <Text style={styles.paymentMethodTxt}>EasyPaisa</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.paymentMethods} onPress={() => {
                 setSelectedMethod(3);
             }}>
-                <Image source={selectedMethod == 3 ? require('../images/radioselect.png') : require('../images/radiounselect.png')} style={[styles.img, {tintColor: selectedMethod == 3 ? 'orange' : '#000'},]}/>
+                <Image source={selectedMethod == 3 ? require('../images/radioselect.png') : require('../images/radiounselect.png')} style={[styles.img, { tintColor: selectedMethod == 3 ? 'orange' : '#000' },]} />
                 <Text style={styles.paymentMethodTxt}>Cash On Delivery</Text>
             </TouchableOpacity>
 
             <View style={styles.addressView}>
-            <Text style={styles.title}>Address</Text>
-            <Text style={[styles.title, {textDecorationLine: 'underline', color: '#0269A0FB'}]} onPress={() => {
-                navigation.navigate('Addresses')
-            }}>Edit Address</Text>
+                <Text style={styles.title}>Address</Text>
+                <Text style={[styles.title, { textDecorationLine: 'underline', color: '#0269A0FB' }]} onPress={() => {
+                    navigation.navigate('Addresses')
+                }}>Edit Address</Text>
             </View>
-            
-            <Text style={[styles.title, {marginTop: 10, fontSize: 16, color: '#636363'}]}>{selectAddress}</Text>
 
-            <CustomButton bg={'green'} title={'Pay & Order'} color={'#fff'}/>
+            <Text style={[styles.title, { marginTop: 10, fontSize: 16, color: '#636363' }]}>{selectAddress}</Text>
+
+            <CustomButton bg={'green'} title={'Pay & Order'} color={'#fff'} onClick={() => {
+                payNow();
+
+            }} />
         </View>
     )
 }
@@ -221,16 +278,16 @@ const styles = StyleSheet.create({
         marginTop: 20,
         paddingLeft: 20
     },
-    img:{
+    img: {
         width: 24,
         height: 24
     },
-    paymentMethodTxt:{
+    paymentMethodTxt: {
         marginLeft: 15,
         fontSize: 16,
         color: '#000'
     },
-    addressView:{
+    addressView: {
         flexDirection: 'row',
         width: '100%',
         justifyContent: 'space-between',

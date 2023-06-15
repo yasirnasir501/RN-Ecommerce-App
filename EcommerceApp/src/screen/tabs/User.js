@@ -1,8 +1,10 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
 import Header from '../../common/Header';
+import { useNavigation } from '@react-navigation/native';
 
 const User = () => {
+  const navigation = useNavigation()
   return (
     <View style={styles.container}>
       <Header title={'Profile'}/>
@@ -13,7 +15,9 @@ const User = () => {
       <TouchableOpacity style={[styles.tab, {marginTop: 40}]}>
         <Text style={{color: '#000'}}>Edit Profile</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={[styles.tab, {marginTop: 10}]}>
+      <TouchableOpacity style={[styles.tab, {marginTop: 10}]} onPress={() => {
+        navigation.navigate('Orders')
+      }}>
         <Text style={{color: '#000'}}>Orders</Text>
       </TouchableOpacity>
       <TouchableOpacity style={[styles.tab, {marginTop: 10}]}>

@@ -40,7 +40,10 @@ const CartSlice = createSlice({
            
             state.data = tempData;
         },
+        emptyCart(state, action) {
+            state.data = action.payload;
+        }
     },
 });
-export const {addItemToCart, reduceItemToCart, removeItemToCart} = CartSlice.actions;
+export const {addItemToCart, reduceItemToCart, removeItemToCart, emptyCart} = CartSlice.actions;
 export default CartSlice.reducer;
